@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - convex geometry</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+
+		<div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - convex geometry</div>
+
+		<script type="module">
+
+			import * as THREE from './js/three.module.js';
+
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import { ConvexBufferGeometry } from './jsm/geometries/ConvexGeometry.js';
+
+			var group, camera, scene, renderer;
+
+			init();
+			animate();
+
+			function init() {
+
+				scene = new THREE.Scene();
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				// camera
+
+				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.set( 15, 20, 30 );
+				scene.add( camera );
+
+				// controls
+
+				var controls = new OrbitControls( camera, renderer.domElement );
+				controls.minDistance = 20;
+				controls.maxDistance = 50;
+				// controls.maxPolarAngle = Math.PI / 2;
+
+				scene.add( new THREE.AmbientLight( 0x222222 ) );
+
+				// light
+
+				var light = new THREE.PointLight( 0xffffff, 1 );
+				camera.add( light );
+
+				// helper
+
+				var axes = new THREE.AxesHelper( 20 );
+				axes.position.x = -5
+				axes.position.y = -5
+				axes.position.z = -5
+				scene.add( axes );
+
+				// textures
+
+				var loader = new THREE.TextureLoader();
+				var texture = loader.load( 'disc.png' );
+
+				group = new THREE.Group();
+				scene.add( group );
+
+				// big box
+				// points
+
+				var vertices = new THREE.BoxGeometry( 10, 10, 10 ).vertices;
+
+				for ( var i = 0; i < vertices.length; i ++ ) {
+
+					// vertices[ i ].add( randomPoint().multiplyScalar( 2 ) ); // wiggle the points
+
+				}
+
+				var pointsMaterial1 = new THREE.PointsMaterial( {
+
+					color: 0x0080ff,
+					map: texture,
+					size: 1,
+					alphaTest: 0.5
+
+				} );
+
+
+				var pointsGeometry = new THREE.BufferGeometry().setFromPoints( vertices );
+
+				var points = new THREE.Points( pointsGeometry, pointsMaterial1 );
+				group.add( points );
+
+				// convex hull
+
+				var meshMaterial = new THREE.MeshLambertMaterial( {
+					color: 0xffffff,
+					opacity: 0.5,
+					transparent: true
+				} );
+
+				var meshGeometry = new ConvexBufferGeometry( vertices );
+
+				var mesh = new THREE.Mesh( meshGeometry, meshMaterial );
+				mesh.material.side = THREE.BackSide; // back faces
+				mesh.renderOrder = 0;
+				group.add( mesh );
+
+				var mesh = new THREE.Mesh( meshGeometry, meshMaterial.clone() );
+				mesh.material.side = THREE.FrontSide; // front faces
+				mesh.renderOrder = 1;
+				group.add( mesh );
+
+				// small box
+				// material
+				// point material
+				var pointsMaterial2 = new THREE.PointsMaterial( {
+
+					color: 0xff0000,
+					map: texture,
+					size: 1,
+					alphaTest: 0.5
+
+				} );
+
+				// mesh material
+				var meshMaterial_in = new THREE.MeshLambertMaterial( {
+					color: 0x00ff00,
+					// opacity: 0.9,
+					// transparent: true
+				} );
+
+				var meshMaterial_out = new THREE.MeshLambertMaterial( {
+					color: 0xffffff,
+					// opacity: 0.9,
+					// transparent: true
+				} );
+
+				// box1
+				// point
+				var vertices1 = new THREE.BoxGeometry( 3, 3, 3 ).vertices;
+
+				for ( var j = 0; j < vertices1.length; j ++ ) {
+
+					// vertices[ i ].add( randomPoint().multiplyScalar( 2 ) ); // wiggle the points
+
+				}
+				var pointsGeometry1 = new THREE.BufferGeometry().setFromPoints( vertices1 );
+
+				var points1 = new THREE.Points( pointsGeometry1, pointsMaterial2 );
+				points1.position.x = -3.5
+				points1.position.y = -3.5
+				points1.position.z = 3.5
+				group.add( points1 );
+
+				// convex hull
+				var meshGeometry1 = new ConvexBufferGeometry( vertices1 );
+
+				var mesh1 = new THREE.Mesh( meshGeometry1, meshMaterial_in );
+				mesh1.material.side = THREE.BackSide; // back faces
+				mesh1.renderOrder = 0;
+				mesh1.position.x = -3.5
+				mesh1.position.y = -3.5
+				mesh1.position.z = 3.5
+				group.add( mesh1 );
+
+				var mesh1 = new THREE.Mesh( meshGeometry1, meshMaterial_in.clone() );
+				mesh1.material.side = THREE.FrontSide; // front faces
+				mesh1.renderOrder = 1;
+				mesh1.position.x = -3.5
+				mesh1.position.y = -3.5
+				mesh1.position.z = 3.5
+				group.add( mesh1 );
+
+
+
+				// box2
+				// point
+				var vertices2 = new THREE.BoxGeometry( 3, 6, 3 ).vertices;
+
+				for ( var j = 0; j < vertices2.length; j ++ ) {
+
+					// vertices[ i ].add( randomPoint().multiplyScalar( 2 ) ); // wiggle the points
+
+				}
+				var pointsGeometry2 = new THREE.BufferGeometry().setFromPoints( vertices2 );
+
+				var points2 = new THREE.Points( pointsGeometry2, pointsMaterial1 );
+				points2.position.x = -3.5
+				points2.position.y = -2
+				points2.position.z = -3.5
+				group.add( points2 );
+
+				// convex hull
+				var meshGeometry2 = new ConvexBufferGeometry( vertices2 );
+
+				var mesh2 = new THREE.Mesh( meshGeometry2, meshMaterial_out );
+				mesh2.material.side = THREE.BackSide; // back faces
+				mesh2.renderOrder = 0;
+				mesh2.position.x = -3.5
+				mesh2.position.y = -2
+				mesh2.position.z = -3.5
+				group.add( mesh2 );
+
+				var mesh2 = new THREE.Mesh( meshGeometry2, meshMaterial_out.clone() );
+				mesh2.material.side = THREE.FrontSide; // front faces
+				mesh2.renderOrder = 1;
+				mesh2.position.x = -3.5
+				mesh2.position.y = -2
+				mesh2.position.z = -3.5
+				group.add( mesh2 );
+
+				// box3
+				// point
+				var vertices3 = new THREE.BoxGeometry( 7, 3, 10 ).vertices;
+
+				for ( var j = 0; j < vertices3.length; j ++ ) {
+
+					// vertices[ i ].add( randomPoint().multiplyScalar( 2 ) ); // wiggle the points
+
+				}
+				var pointsGeometry3 = new THREE.BufferGeometry().setFromPoints( vertices3 );
+
+				var points3 = new THREE.Points( pointsGeometry3, pointsMaterial1 );
+				points3.position.x = 1.5
+				points3.position.y = -3.5
+				points3.position.z = 0
+				group.add( points3 );
+
+				// convex hull
+				var meshGeometry3 = new ConvexBufferGeometry( vertices3 );
+
+				var mesh3 = new THREE.Mesh( meshGeometry3, meshMaterial_out );
+				mesh3.material.side = THREE.BackSide; // back faces
+				mesh3.renderOrder = 0;
+				mesh3.position.x = 1.5
+				mesh3.position.y = -3.5
+				mesh3.position.z = 0
+				group.add( mesh3 );
+
+				var mesh3 = new THREE.Mesh( meshGeometry3, meshMaterial_out.clone() );
+				mesh3.material.side = THREE.FrontSide; // front faces
+				mesh3.renderOrder = 1;
+				mesh3.position.x = 1.5
+				mesh3.position.y = -3.5
+				mesh3.position.z = 0
+				group.add( mesh3 );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				// group.rotation.y += 0.005;
+
+				render();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
